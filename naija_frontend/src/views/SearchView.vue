@@ -6,7 +6,8 @@
                     <input v-model="query" type="search" class="p-4 w-full bg-gray-100 rounded-lg"
                         placeholder="What are you looking for?">
 
-                    <button href="#" class="inline-block py-4 px-6 bg-purple-600 text-white rounded-lg" :disabled="!query.trim()">
+                    <button href="#" class="inline-block py-4 px-6 bg-purple-600 text-white rounded-lg"
+                        :disabled="!query.trim()">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                             stroke="currentColor" class="w-6 h-6">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -18,7 +19,7 @@
             <!-- For Profiles -->
             <div class="p-4 bg-white border border-gray-200 rounded-lg grid grid-cols-4 gap-4" v-if="users.length">
                 <div v-for="user in users" v-bind:key="user.id" class="p-4 text-center bg-gray-100 rounded-lg">
-                    <img src="https://i.pravatar.cc/300?img=70" class="mb-6 rounded-full">
+                    <img :src="user.get_avatar" class="mb-6 rounded-full">
 
                     <p>
                         <strong>
@@ -27,8 +28,8 @@
                     </p>
 
                     <div class="mt-6 flex space-x-8 justify-around">
-                        <p class="text-xs text-gray-500">{{user.friends_count}} friends</p>
-                        <p class="text-xs text-gray-500">120 posts</p>
+                        <p class="text-xs text-gray-500">{{ user.friends_count }} friends</p>
+                        <p class="text-xs text-gray-500">{{ user.posts_count }} posts</p>
                     </div>
                 </div>
             </div>
@@ -42,7 +43,9 @@
         </div>
 
         <div class="main-right col-span-1 space-y-4">
-            <PeopleYouMayKnow />
+            <div v-if="userStore.user.isAuthenticated">
+                <PeopleYouMayKnow />
+            </div>
             <Trends />
 
         </div>
@@ -54,8 +57,16 @@ import axios from 'axios'
 import PeopleYouMayKnow from '../components/PeopleYouMayKnow.vue';
 import Trends from '../components/Trends.vue';
 import FeedItem from '../components/FeedItem.vue';
+import { useUserStore } from '@/stores/user';
 export default {
     name: 'SearchView',
+    setup() {
+        const userStore = useUserStore()
+
+        return {
+            userStore,
+        }
+    },
     components: {
         PeopleYouMayKnow,
         Trends,

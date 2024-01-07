@@ -98,12 +98,12 @@ export default {
                     .get('/api/me/')
                     .then(response => {
                         this.userStore.setUserInfo(response.data)
-
+                        //this.$router.push('/feed')
                         window.location.href = "/feed";
                     })
                     .catch(error => {
                         console.log('error', error)
-                        this.toastStore.showToast(5000, 'Wrong Email or Password please try again', 'bg-red-300')
+                        this.toastStore.showToast(5000, 'Wrong Email or Password please try again/User not activated', 'bg-red-300')
                     })
             }
         }

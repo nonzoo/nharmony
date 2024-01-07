@@ -1,4 +1,4 @@
-from .models import Post
+from .models import Post, PostAttachment
 from django.forms import ModelForm
 
 
@@ -8,3 +8,8 @@ class PostForm(ModelForm):
         model = Post
         fields  = ('body', )
 
+class AttachmentsForm(ModelForm):
+
+    class Meta:
+      model = PostAttachment
+      fields = ('image', )

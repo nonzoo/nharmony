@@ -1,12 +1,13 @@
 from django.contrib import admin
 
-from .models import Post, PostAttachment, Like, Comment
+from .models import Post, PostAttachment, Like, Comment, Trend
 
 
 
 
 
 admin.site.register(PostAttachment)
+admin.site.register(Trend)
 
 @admin.register(Post)
 class Post(admin.ModelAdmin):

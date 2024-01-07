@@ -40,7 +40,9 @@
 
 
         <div class="main-right col-span-1 space-y-4">
-            <PeopleYouMayKnow />
+            <div v-if="userStore.user.isAuthenticated">
+                <PeopleYouMayKnow />
+            </div>
             <Trends />
         </div>
     </div>

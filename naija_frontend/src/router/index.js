@@ -9,6 +9,12 @@ import ProfileView from '../views/ProfileView.vue';
 import FriendsView from '../views/FriendsView.vue';
 import PostView from '../views/PostView.vue';
 import ChatView from '../views/ChatView.vue';
+import TrendView from '../views/TrendView.vue';
+import EditProfileView from '../views/EditProfileView.vue';
+import EditPasswordView from '../views/EditPasswordView.vue';
+
+
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -33,35 +39,50 @@ const router = createRouter({
       component: FeedView,
     },
     {
-      path:'/search',
-      name:'search',
+      path: '/search',
+      name: 'search',
       component: SearchView,
     },
     {
-      path:'/profile/:id',
-      name:'profile',
+      path: '/profile/:id',
+      name: 'profile',
       component: ProfileView,
     },
-    { 
-      path:'/profile/:id/friends',
-      name:'friends',
+    {
+      path: '/profile/edit',
+      name: 'editprofile',
+      component: EditProfileView,
+    },
+    {
+      path: '/profile/edit/password',
+      name: 'editpassword',
+      component: EditPasswordView,
+    },
+    {
+      path: '/profile/:id/friends',
+      name: 'friends',
       component: FriendsView,
     },
     {
-      path:'/:id',
-      name:'postdetail',
-      component:PostView
+      path: '/:id',
+      name: 'postdetail',
+      component: PostView
     },
     {
-      path:'/chat',
-      name:'chat',
-      component:ChatView
-      
+      path: '/chat',
+      name: 'chat',
+      component: ChatView
+
     },
     {
-      path:'/chat/:id',
-      name:'chatdetail',
+      path: '/chat/:id',
+      name: 'chatdetail',
       component: ChatDetailView
+    },
+    {
+      path: '/trends/:id',
+      name: 'trendview',
+      component: TrendView
     },
     {
       path: '/about',
@@ -69,7 +90,7 @@ const router = createRouter({
       component: () => import('../views/AboutView.vue'),
     },
   ],
-  
+
 });
 
 

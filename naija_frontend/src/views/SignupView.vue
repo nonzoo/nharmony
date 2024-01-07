@@ -107,15 +107,19 @@ export default {
                     .post('/api/signup/', this.form) 
                     .then(response => {
                         if (response.data.message === 'success') {
-                            this.toastStore.showToast(5000, 'The user is registered. Please Login', 'bg-emerald-500')
+                            // this.$router.push('/login')
+                            // window.location.href = "login"
+                            this.toastStore.showToast(5000, 'The user is registered. Please activate your account by clicking your email link.', 'bg-emerald-500')
+                            
 
-                            this.form.email = ''
-                            this.form.name = ''
-                            this.form.password1 = ''
-                            this.form.password2 = ''
                         } else {
-                            this.toastStore.showToast(5000, 'Something went wrong. Please try again', 'bg-red-300')
-                            console.log(response.data.message)
+
+                            const data = JSON.parse(response.data.message)
+                            for(const key in data){
+                                this.errors.push('* ' + data[key][0].message)
+                            }
+                            // this.toastStore.showToast(5000, `${response.data.message}. Please try again`, 'bg-red-300')
+                            
                         }
                     })
                     .catch(error => {

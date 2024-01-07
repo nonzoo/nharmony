@@ -2,25 +2,31 @@
     <div class="max-w-7xl mx-auto grid grid-cols-4 gap-4">
         <div class="main-left col-span-1">
             <div class="p-4 bg-white border border-gray-200 text-center rounded-lg">
-                <img src="https://i.pravatar.cc/300?img=70" class="mb-6 rounded-full">
+                <img :src="user.get_avatar" class=" w-30 mb-6 rounded-full">
 
                 <p><strong>{{ user.name }}</strong></p>
 
-                <div class="mt-6 flex space-x-8 justify-around">
+                <div class="mt-6 flex space-x-8 justify-around" v-if="user.id">
                     <RouterLink :to="{ name: 'friends', params: { id: user.id } }" class="text-xs text-gray-500">
                         {{ user.friends_count }} friends</RouterLink>
-                    <p class="text-xs text-gray-500">120 posts</p>
+                    <p class="text-xs text-gray-500">{{ user.posts_count }} posts</p>
                 </div>
-                <div class="mt-6" >
-                    <button class="inline-block py-4 px-3 text-xs bg-purple-600 text-white rounded-lg" 
-                        @click="sendFriendRequest" v-if="userStore.user.isAuthenticated && userStore.user.id !== user.id">Send Friend Request</button>
+                <div class="mt-6 space-x-4">
+                    <button class="inline-block py-4 px-3 text-xs bg-purple-600 text-white rounded-lg"
+                        @click="sendFriendRequest"
+                        v-if="userStore.user.isAuthenticated && userStore.user.id !== user.id">Send Friend Request</button>
 
-                    <button class="inline-block py-4 px-3 text-xs bg-red-600 text-white rounded-lg" 
-                        @click="logout" v-if="userStore.user.id === user.id">Logout</button>
+                    <RouterLink to="/profile/edit"
+                        class="inline-block py-4 px-3 text-xs bg-purple-600 mr-4 text-white rounded-lg"
+                        v-if="userStore.user.id === user.id">Edit</RouterLink>
+
+                    <button class="inline-block py-4 px-3 text-xs bg-red-600 text-white rounded-lg" @click="logout"
+                        v-if="userStore.user.id === user.id">Logout</button>
 
 
-                    <button class="inline-block py-4 px-3 text-xs bg-purple-600 text-white rounded-lg mt-5" 
-                        @click="sendDirectmessage" v-if="userStore.user.isAuthenticated && userStore.user.id !== user.id">Message</button>
+                    <button class="inline-block py-4 px-3 text-xs bg-purple-600 text-white rounded-lg mt-5"
+                        @click="sendDirectmessage"
+                        v-if="userStore.user.isAuthenticated && userStore.user.id !== user.id">Message</button>
                 </div>
             </div>
         </div>
@@ -34,8 +40,17 @@
                             placeholder="What are you thinking about?"></textarea>
                     </div>
 
+                    <div id="preview" v-if="url" class="p-4">
+                        <img :src="url" class="w-[100px] rounded-xl  mt-2">
+                    </div>
+
+
                     <div class="p-4 border-t border-gray-100 flex justify-between">
-                        <button class="inline-block py-4 px-6 bg-gray-600 text-white rounded-lg">Attach image</button>
+
+                        <label class="inline-block py-4 px-6 bg-gray-600 text-white rounded-lg">
+                            <input type="file" ref="file" @change="onFileChange">
+                            Attach image
+                        </label>
 
                         <button class="inline-block py-4 px-6 bg-purple-600 text-white rounded-lg"
                             :disabled="!body.trim()">Post</button>
@@ -60,13 +75,28 @@
         </div>
 
         <div class="main-right col-span-1 space-y-4">
-            <PeopleYouMayKnow />
+            <div v-if="userStore.user.isAuthenticated">
+                <PeopleYouMayKnow />
+            </div>
+
 
             <Trends />
         </div>
     </div>
 </template>
 
+<style>
+input[type="file"] {
+    display: none;
+}
+
+.custom-file-upload {
+    border: 1px solid #ccc;
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
+}
+</style>
 
 <script>
 import axios from 'axios'
@@ -98,8 +128,9 @@ export default {
     data() {
         return {
             posts: [],
-            user: {},
-            body: ''
+            user: { id: '' },
+            body: '',
+            url: null
         }
     },
 
@@ -118,6 +149,12 @@ export default {
     },
 
     methods: {
+
+        onFileChange(e){
+            const file = e.target.files[0]
+            this.url = URL.createObjectURL(file)
+        },
+
         sendFriendRequest() {
             axios
                 .post(`/api/friends/${this.$route.params.id}/request/`)
@@ -126,7 +163,7 @@ export default {
 
                     if (response.data.message == 'request already sent') {
                         this.toastStore.showToast(5000, 'Request already sent', 'bg-red-300')
-                    }else{
+                    } else {
                         this.toastStore.showToast(5000, 'Request sent', 'bg-emerald-300')
                     }
                 })
@@ -145,6 +182,8 @@ export default {
                     this.posts = response.data.posts
                     this.user = response.data.user
 
+                    // console.log('http://127.0.0.1:8000' + this.user.avatar)
+
                 })
                 .catch(error => {
                     console.log('error', error)
@@ -152,35 +191,46 @@ export default {
         },
         submitForm() {
             console.log('submitForm', this.body)
+            let formData = new FormData()
+
+            formData.append('image', this.$refs.file.files[0])
+            formData.append('body', this.body)
+
             axios
-                .post('/api/posts/create/', {
-                    'body': this.body
+                .post('/api/posts/create/', formData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    }
                 })
                 .then(response => {
                     console.log('data', response.data)
 
                     this.posts.unshift(response.data)
                     this.body = ''
+                    this.$refs.file.files= null
+                    this.url = null
+                    this.user.posts_count += 1
                 })
                 .catch(error => {
                     console.log('error', error)
                 })
         },
 
-        logout(){
+        logout() {
             this.userStore.removeToken()
-            this.$router.push('/login')
-            this.toastStore.showToast(5000, 'Logout Successfully!', 'bg-emerald-300')
-            
+            window.location.href = "/login"
+            // this.toastStore.showToast(5000, 'Logout Successfully!', 'bg-emerald-300')
+
+
         },
 
-        sendDirectmessage(){
+        sendDirectmessage() {
             axios
                 .get(`/api/chat/${this.$route.params.id}/get-or-create/`)
                 .then(response => {
                     this.$router.push(`/chat/${response.data.id}/`)
                 })
-                .catch(error =>{
+                .catch(error => {
                     console.log('error', error)
                 })
         }

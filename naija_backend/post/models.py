@@ -2,7 +2,8 @@ from django.db import models
 import uuid
 from django.contrib.auth import get_user_model
 from account.time import created_at_format
-User = get_user_model()
+from account.models import User
+# User = get_user_model()
 
 
 
@@ -28,15 +29,6 @@ class Comment(models.Model):
 
 
 
-
-class PostAttachment(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    #image = models.ImageField(upload_to= f'post_attachments/{User.email}')
-    created_by = models.ForeignKey(User, related_name='post_attachments', on_delete=models.CASCADE)
-
-
-
-
 class Like(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_by = models.ForeignKey(User, related_name='likes', on_delete=models.CASCADE)
@@ -44,10 +36,28 @@ class Like(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_for = models.ForeignKey(User, related_name='liked_by', null=True ,on_delete=models.CASCADE)
 
-    
     class Meta:
         ordering = ('-created_at',)
 
+
+def user_post_path(request, filename):
+    user_email = request.created_by or 'default'
+    return f'post_attachments/{user_email}/{filename}'
+
+class PostAttachment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    image = models.ImageField(upload_to= user_post_path, null = True)
+    created_by = models.ForeignKey(User, related_name='post_attachments', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add = True, null = True)
+
+    class Meta:
+        ordering = ('-created_at',)
+
+    def get_image(self):
+        if self.image:
+            return 'http://127.0.0.1:8000' + self.image.url
+        else:
+            return ''
 
 
 
@@ -75,3 +85,9 @@ class Post(models.Model):
     def __str__(self):
         return self.body[:20]
     
+
+
+
+class Trend(models.Model):
+    hashtag = models.CharField(max_length = 255)
+    occurences = models.IntegerField()

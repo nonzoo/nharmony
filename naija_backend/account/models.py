@@ -28,11 +28,19 @@ class CustomUserManager(UserManager):
         return self._create_user(name, email, password, **extra_fields)
     
 
+
+def user_avatar_path(instance, filename):
+    # Get the user's email or use a default value
+    user_email = instance.email or 'default'
+    # Construct the upload path: 'avatars/{user_email}/{filename}'
+    return f'avatars/{user_email}/{filename}'
+
+
 class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=255, blank=True, default='')
-    avatar = models.ImageField(upload_to=f'avatars/{email}', blank=True, null=True)
+    avatar = models.ImageField(upload_to=user_avatar_path, blank=True, null=True)
 
     friends = models.ManyToManyField('self')
     
@@ -40,7 +48,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     #people_you_may_know = models.ManyToManyField('self')
 
-    #posts_count = models.IntegerField(default=0)
+    posts_count = models.IntegerField(default=0)
 
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
@@ -56,8 +64,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['name']
 
 
-
-
+    def get_avatar(self):
+         if self.avatar:
+            return 'http://127.0.0.1:8000' + self.avatar.url
+         else:
+             return 'http://127.0.0.1:8000/media/avatars/profile.png'
+         
 
 
 class FriendRequest(models.Model):

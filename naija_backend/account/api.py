@@ -1,10 +1,11 @@
 from django.http import JsonResponse
-
+from django.core.mail import send_mail
 from rest_framework.decorators import api_view,authentication_classes,permission_classes
 
-from .forms import SignupForm
+from .forms import SignupForm,ProfileForm
 from .models import FriendRequest, User
 from .serializers import UserSerializer,FriendRequestSerializer
+from django.contrib.auth.forms import PasswordChangeForm
 
 
 @api_view(['GET'])
@@ -13,6 +14,7 @@ def me(request):
         'id': request.user.id,
         'name': request.user.name,
         'email': request.user.email,
+        'avatar': request.user.get_avatar()
         
     })
 
@@ -25,27 +27,53 @@ def me(request):
 def signup(request):
     data = request.data
     message = 'success'
-    
+
+
     form = SignupForm({
-        'email': data.get('email'),
-        'name': data.get('name'),
-        'password1': data.get('password1'),
-        'password2': data.get('password2'), 
-    })
-    #if the form is valid the user should be saved and created
+            'email': data.get('email'),
+            'name': data.get('name'),
+            'password1': data.get('password1'),
+            'password2': data.get('password2'), 
+        })
+        #if the form is valid the user should be saved and created
     if form.is_valid():
-        form.save()
-        
+            user = form.save()
+            user.is_active = False
+            user.save()
+            url = f'http://127.0.0.1:8000/activateemail/?email={user.email}&id={user.id}'
+
+            send_mail(
+                 "Please verify your email",
+                 f"the url for activating your account is: {url}",
+                 "noreply@naijaharmony.com",
+                 [user.email],
+                 fail_silently=False,
+            )
+            
     else:
-        message = 'error'
+        message = form.errors.as_json()
 
     return JsonResponse({'message':message})
+
+ 
+@api_view(['POST'])
+def editpassword(request):
+     user = request.user
+     form = PasswordChangeForm(data=request.POST, user=user)
+
+     if form.is_valid():
+          form.save()
+
+          return JsonResponse({'message':'success'})
+     
+     else:
+          return JsonResponse({'message': form.errors.as_json()}, safe=False)
+
+
 
 
 
 @api_view(['GET'])
-@authentication_classes([])
-@permission_classes([])
 def friends(request, pk):
     user = User.objects.get(pk=pk)
     requests = []
@@ -61,6 +89,23 @@ def friends(request, pk):
         'friends': UserSerializer(friends, many=True).data,
         'requests': requests
     }, safe=False)
+
+
+
+@api_view(['POST'])
+def editprofile(request):
+    user = request.user
+    email = request.data.get('email')
+    
+    if User.objects.exclude(id=user.id).filter(email=email).exists():
+        return JsonResponse({'message':'Email already exists'})
+    else:
+        form = ProfileForm(request.POST, request.FILES , instance=user)
+        
+        if form.is_valid():
+            form.save()
+        serializer = UserSerializer(user)
+        return JsonResponse({'message':'Information Updated', 'user':serializer.data})
 
 
 @api_view(['POST'])
