@@ -6,6 +6,7 @@ from .forms import SignupForm,ProfileForm
 from .models import FriendRequest, User
 from .serializers import UserSerializer,FriendRequestSerializer
 from django.contrib.auth.forms import PasswordChangeForm
+from notification.utils import create_notification
 
 
 @api_view(['GET'])
@@ -116,8 +117,10 @@ def send_friend_request(request, pk):
 
     if not check1:
         if not check2:
-            friend_request = FriendRequest.objects.create(created_for=user, created_by=request.user)
+            friendrequest = FriendRequest.objects.create(created_for=user, created_by=request.user)
+            notification = create_notification(request, 'new_friendrequest' , friendrequest_id=friendrequest.id)
             return JsonResponse({'message':'friend request created'})
+        
     
         else:
             return JsonResponse({'message':'request already sent'})
@@ -131,10 +134,10 @@ from django.http import JsonResponse
 @api_view(['POST'])
 def handle_request(request, pk, status):
     user = User.objects.get(pk=pk)
-    friend_request = FriendRequest.objects.filter(created_for=request.user).get(created_by=user)
+    friendrequest = FriendRequest.objects.filter(created_for=request.user).get(created_by=user)
     
-    friend_request.status = status
-    friend_request.save()
+    friendrequest.status = status
+    friendrequest.save()
     
     user.friends.add(request.user)
     user.friends_count = user.friends_count + 1
@@ -146,15 +149,15 @@ def handle_request(request, pk, status):
 
 
     updated_request_data = {
-        'id': friend_request.id,
+        'id': friendrequest.id,
         'created_by': {
-            'id': friend_request.created_by.id,
-            'name': friend_request.created_by.name,
+            'id': friendrequest.created_by.id,
+            'name': friendrequest.created_by.name,
             
         },
        
     }
-
+    notification = create_notification(request, 'accepted_friendrequest' , friendrequest_id=friendrequest.id)
     return JsonResponse({'message': 'friend request updated', 'updatedRequest': updated_request_data})
 
 

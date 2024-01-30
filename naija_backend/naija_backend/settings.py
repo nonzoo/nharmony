@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'post',
     'search',
     'chat',
+    'notification',
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
@@ -72,7 +73,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'naija_backend.urls'
-# SITE_ID = 1 
+SITE_ID = 2
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
