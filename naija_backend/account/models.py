@@ -36,6 +36,15 @@ def user_avatar_path(instance, filename):
     return f'avatars/{user_email}/{filename}'
 
 
+
+MALE = 'Male' 
+FEMALE = 'Female'
+
+GENDER_CHOICES = (
+    (MALE,'Male'),
+    (FEMALE,'Female')
+)
+
 class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
@@ -49,6 +58,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     #people_you_may_know = models.ManyToManyField('self')
 
     posts_count = models.IntegerField(default=0)
+    
+    gender = models.CharField(max_length=30,choices=GENDER_CHOICES,null=True)
 
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
