@@ -56,7 +56,7 @@ def post_create(request):
     attachment=None
     attachment_form = AttachmentsForm(request.POST, request.FILES)
 
-    if attachment_form.is_valid:
+    if attachment_form.is_valid():
         attachment = attachment_form.save(commit=False)
         attachment.created_by = request.user
         attachment.save()
@@ -76,7 +76,8 @@ def post_create(request):
         serializer = PostSerializer(post)
         return JsonResponse(serializer.data, safe=True)
     else:
-        return JsonResponse({'error': 'world'})
+        return JsonResponse({'error': 'Invalid form data'}, status=400)
+
 
 
 @require_POST

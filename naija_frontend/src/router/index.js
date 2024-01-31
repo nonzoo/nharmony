@@ -12,6 +12,7 @@ import ChatView from '../views/ChatView.vue';
 import TrendView from '../views/TrendView.vue';
 import EditProfileView from '../views/EditProfileView.vue';
 import EditPasswordView from '../views/EditPasswordView.vue';
+import NotificationView from '../views/NotificationsView.vue'
 
 
 
@@ -72,6 +73,12 @@ const router = createRouter({
       path: '/chat',
       name: 'chat',
       component: ChatView
+
+    },
+    {
+      path: '/notifications',
+      name: 'notifications',
+      component: NotificationView
 
     },
     {

@@ -2,9 +2,11 @@
     <div class="max-w-7xl mx-auto grid grid-cols-4 gap-4">
         <div class="main-left col-span-1">
             <div class="p-4 bg-white border border-gray-200 text-center rounded-lg">
-                <img :src="user.get_avatar" class=" w-30 mb-6 rounded-full">
+                <img :src="user.get_avatar" class="mb-6 rounded-full" style="max-width: 200px;  max-height: 150px; width: auto;  height: auto;">
 
                 <p><strong>{{ user.name }}</strong></p>
+                <p><small>@{{ user.name }}</small></p>
+                <p class="capitalize-first"><strong>{{ user.gender }}</strong></p>
 
                 <div class="mt-6 flex space-x-8 justify-around" v-if="user.id">
                     <RouterLink :to="{ name: 'friends', params: { id: user.id } }" class="text-xs text-gray-500">
@@ -48,7 +50,7 @@
                     <div class="p-4 border-t border-gray-100 flex justify-between">
 
                         <label class="inline-block py-4 px-6 bg-gray-600 text-white rounded-lg">
-                            <input type="file" ref="file" @change="onFileChange">
+                            <input type="file" ref="file" @change="onFileChange" class="hidden">
                             Attach image
                         </label>
 
@@ -86,8 +88,9 @@
 </template>
 
 <style>
-input[type="file"] {
-    display: none;
+
+.capitalize-first::first-letter {
+  text-transform: uppercase;
 }
 
 .custom-file-upload {
@@ -207,7 +210,7 @@ export default {
 
                     this.posts.unshift(response.data)
                     this.body = ''
-                    this.$refs.file.files= null
+                    this.$refs.file.value = null
                     this.url = null
                     this.user.posts_count += 1
                 })
