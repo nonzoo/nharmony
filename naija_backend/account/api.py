@@ -15,8 +15,11 @@ def me(request):
         'id': request.user.id,
         'name': request.user.name,
         'email': request.user.email,
-        'avatar': request.user.get_avatar()
-        
+        'bio': request.user.bio,
+        'age':request.user.age,
+        'gender': request.user.gender,
+        'locations':request.user.locations,
+        'avatar': request.user.get_avatar()      
     })
 
 
@@ -33,6 +36,7 @@ def signup(request):
     form = SignupForm({
             'email': data.get('email'),
             'name': data.get('name'),
+            'age': data.get('age'),
             'password1': data.get('password1'),
             'password2': data.get('password2'), 
         })
@@ -129,7 +133,7 @@ def send_friend_request(request, pk):
             return JsonResponse({'message':'request already sent'})
 
 
-from django.http import JsonResponse
+
 
 @api_view(['POST'])
 def handle_request(request, pk, status):

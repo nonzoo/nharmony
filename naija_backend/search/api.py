@@ -4,6 +4,8 @@ from account.models import User
 from account.serializers import UserSerializer
 from post.serializers import PostSerializer
 from post.models import Post
+from django.db.models import Q
+
 
 @api_view(['POST'])
 @authentication_classes([])
@@ -12,7 +14,7 @@ def search(request):
     data = request.data  
     query = data['query']
 
-    users = User.objects.filter(name__icontains=query)
+    users = User.objects.filter(Q(name__icontains=query) | Q(locations__icontains=query) )
     users_serializer = UserSerializer(users, many=True)
 
     posts= Post.objects.filter(body__icontains=query)
@@ -20,6 +22,9 @@ def search(request):
 
     context={
         'users':users_serializer.data,
-        'posts':post_serializer.data
+        'posts':post_serializer.data,
+        
     }
-    return JsonResponse(context, safe = False)
+    return JsonResponse(context, safe = False) 
+
+"""Q(bio__icontains=query) |"""

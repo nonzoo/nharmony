@@ -2,6 +2,8 @@ import uuid
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin,UserManager
 from django.db import models
 from django.utils import timezone
+from PIL import Image
+
 
 
 
@@ -36,6 +38,94 @@ def user_avatar_path(instance, filename):
     return f'avatars/{user_email}/{filename}'
 
 
+class Categories(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    body = models.CharField(max_length=200,null = True)
+
+    def __str__(self):
+        return self.body
+
+
+
+
+ABIA = 'Abia'
+ADAMAWA = 'Adamawa'
+AKWA_IBOM = 'Akwa Ibom'
+ANAMBRA = 'Anambra'
+BAUCHI = 'Bauchi'
+BAYELSA = 'Bayelsa'
+BENUE = 'Benue'
+BORNO = 'Borno'
+CROSS_RIVER = 'Cross River'
+DELTA = 'Delta'
+EBONYI = 'Ebonyi'
+EDO = 'Edo'
+EKITI = 'Ekiti'
+ENUGU = 'Enugu'
+GOMBE = 'Gombe'
+IMO = 'Imo'
+JIGAWA = 'Jigawa'
+KADUNA = 'Kaduna'
+KANO = 'Kano'
+KATSINA = 'Katsina'
+KEBBI = 'Kebbi'
+KOGI = 'Kogi'
+KWARA = 'Kwara'
+LAGOS = 'Lagos'
+NASARAWA = 'Nasarawa'
+NIGER = 'Niger'
+OGUN = 'Ogun'
+ONDO = 'Ondo'
+OSUN = 'Osun'
+OYO = 'Oyo'
+PLATEAU = 'Plateau'
+RIVERS = 'Rivers'
+SOKOTO = 'Sokoto'
+TARABA = 'Taraba'
+YOBE = 'Yobe'
+ZAMFARA = 'Zamfara'
+FCT_ABUJA = 'FCT Abuja'
+
+STATE_CHOICES = (
+    (ABIA, 'Abia'),
+    (ADAMAWA, 'Adamawa'),
+    (AKWA_IBOM, 'Akwa Ibom'),
+    (ANAMBRA, 'Anambra'),
+    (BAUCHI, 'Bauchi'),
+    (BAYELSA, 'Bayelsa'),
+    (BENUE, 'Benue'),
+    (BORNO, 'Borno'),
+    (CROSS_RIVER, 'Cross River'),
+    (DELTA, 'Delta'),
+    (EBONYI, 'Ebonyi'),
+    (EDO, 'Edo'),
+    (EKITI, 'Ekiti'),
+    (ENUGU, 'Enugu'),
+    (GOMBE, 'Gombe'),
+    (IMO, 'Imo'),
+    (JIGAWA, 'Jigawa'),
+    (KADUNA, 'Kaduna'),
+    (KANO, 'Kano'),
+    (KATSINA, 'Katsina'),
+    (KEBBI, 'Kebbi'),
+    (KOGI, 'Kogi'),
+    (KWARA, 'Kwara'),
+    (LAGOS, 'Lagos'),
+    (NASARAWA, 'Nasarawa'),
+    (NIGER, 'Niger'),
+    (OGUN, 'Ogun'),
+    (ONDO, 'Ondo'),
+    (OSUN, 'Osun'),
+    (OYO, 'Oyo'),
+    (PLATEAU, 'Plateau'),
+    (RIVERS, 'Rivers'),
+    (SOKOTO, 'Sokoto'),
+    (TARABA, 'Taraba'),
+    (YOBE, 'Yobe'),
+    (ZAMFARA, 'Zamfara'),
+    (FCT_ABUJA, 'FCT Abuja'),
+)
+
 
 MALE = 'Male' 
 FEMALE = 'Female'
@@ -45,13 +135,22 @@ GENDER_CHOICES = (
     (FEMALE,'Female')
 )
 
+
+
 class User(AbstractBaseUser, PermissionsMixin):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=255, blank=True, default='')
+    bio = models.TextField(max_length=200, blank=True,null=True)
+    hobbies = models.CharField(max_length=255, null=True)
     avatar = models.ImageField(upload_to=user_avatar_path, blank=True, null=True)
-
+    categories = models.ForeignKey(Categories,related_name='cat', on_delete=models.CASCADE,null=True)
+    locations = models.CharField(max_length=200, choices = STATE_CHOICES, null=True)
     friends = models.ManyToManyField('self',blank=True)
+
+    age = models.PositiveBigIntegerField(null=True)
+
+    age_preference = models.PositiveBigIntegerField(null=True)
     
     friends_count = models.IntegerField(default=0)
 
@@ -75,13 +174,21 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['name']
 
 
+    def save(self, *args, **kwargs):
+        if self.avatar:
+            super().save(*args, **kwargs)  # Call the original save method to ensure other fields are saved first
+            img = Image.open(self.avatar.path)
+            img = img.resize((300, 300))  # Resize the image to 300x300 pixels
+            img.save(self.avatar.path)  # Save the resized image
+        else:
+            super().save(*args, **kwargs)  # Call the original save method if no avatar is provided
+
     def get_avatar(self):
          if self.avatar:
             return 'http://127.0.0.1:8000' + self.avatar.url
          else:
              return 'http://127.0.0.1:8000/media/avatars/profile.png'
          
-
 
 class FriendRequest(models.Model):
         
@@ -104,3 +211,6 @@ class FriendRequest(models.Model):
 
         def __str__(self):
             return f"From {self.created_by.name} to {self.created_for.name}"
+
+
+
