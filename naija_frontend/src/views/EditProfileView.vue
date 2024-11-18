@@ -36,15 +36,66 @@
                             class="w-full mt-2 py-4 px-6 border border-gray-200 rounded-lg">
                     </div>
                     <div>
+                        <label>Bio</label><br>
+                        <textarea v-model="form.bio" placeholder="Tell us something about yourself" class="w-full mt-2 py-4 px-6 border border-gray-200 rounded-lg"
+                            rows="5"></textarea>
+                    </div>
+                    <div>
+                        <label>Age</label><br>
+                        <input type="number" v-model="form.age"
+                            class="w-full mt-2 py-4 px-6 border border-gray-200 rounded-lg">
+                    </div>
+                    <div>
                         <label>Gender</label><br>
                         <select v-model="form.gender" class="w-full mt-2 py-4 px-6 border border-gray-200 rounded-lg">
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
                         </select>
                     </div>
+                    <div>
+                        <label>Your location</label><br>
+                        <select v-model="form.locations" class="w-full mt-2 py-4 px-6 border border-gray-200 rounded-lg">
+                            <option value="FCT Abuja">FCT Abuja</option>
+                            <option value="Abia">Abia</option>
+                            <option value="Adamawa">Adamawa</option>
+                            <option value="Akwa Ibom">Akwa Ibom</option>
+                            <option value="Anambra">Anambra</option>
+                            <option value="Bauchi">Bauchi</option>
+                            <option value="Bayelsa">Bayelsa</option>
+                            <option value="Benue">Benue</option>
+                            <option value="Borno">Borno</option>
+                            <option value="Cross River">Cross River</option>
+                            <option value="Delta">Delta</option>
+                            <option value="Ebonyi">Ebonyi</option>
+                            <option value="Edo">Edo</option>
+                            <option value="Ekiti">Ekiti</option>
+                            <option value="Enugu">Enugu</option>
+                            <option value="Gombe">Gombe</option>
+                            <option value="Imo">Imo</option>
+                            <option value="Jigawa">Jigawa</option>
+                            <option value="Kaduna">Kaduna</option>
+                            <option value="Kano">Kano</option>
+                            <option value="Katsina">Katsina</option>
+                            <option value="Kebbi">Kebbi</option>
+                            <option value="Kogi">Kogi</option>
+                            <option value="Kwara">Kwara</option>
+                            <option value="Lagos">Lagos</option>
+                            <option value="Nasarawa">Nasarawa</option>
+                            <option value="Niger">Niger</option>
+                            <option value="Ogun">Ogun</option>
+                            <option value="Ondo">Ondo</option>
+                            <option value="Osun">Osun</option>
+                            <option value="Oyo">Oyo</option>
+                            <option value="Plateau">Plateau</option>
+                            <option value="Rivers">Rivers</option>
+                            <option value="Sokoto">Sokoto</option>
+                            <option value="Taraba">Taraba</option>
+                            <option value="Yobe">Yobe</option>
+                            <option value="Zamfara">Zamfara</option>
+                        </select>
+                    </div>
 
-
-
+                    
                     <template v-if="errors.length > 0">
                         <div class="bg-red-300 text-white rounded-lg p-6">
                             <p v-for="error in errors" v-bind:key="error">{{ error }}</p>
@@ -52,7 +103,7 @@
                     </template>
 
                     <div>
-                        <button class="py-4 px-6 bg-purple-600 text-white rounded-lg">Save Chages</button>
+                        <button class="py-4 px-6 bg-purple-600 text-white rounded-lg">Save and Continue</button>
                     </div>
                 </form>
             </div>
@@ -83,6 +134,9 @@ export default {
                 email: this.userStore.user.email,
                 name: this.userStore.user.name,
                 gender: this.userStore.user.gender,
+                bio: this.userStore.user.bio,
+                age: this.userStore.user.age,
+                locations: this.userStore.user.locations
             },
             errors: [],
         }
@@ -95,12 +149,14 @@ export default {
             if (this.form.email === '') {
                 this.errors.push('Your e-mail is missing')
             }
-
             if (this.form.name === '') {
                 this.errors.push('Your name is missing')
             }
             if (this.form.gender === '') {
                 this.errors.push('Your gender is missing')
+            }
+            if (this.form.age === '') {
+                this.errors.push('Your age is missing')
             }
             if (this.errors.length === 0) {
                 let formData = new FormData()
@@ -109,6 +165,9 @@ export default {
                 formData.append('name', this.form.name)
                 formData.append('email', this.form.email)
                 formData.append('gender', this.form.gender)
+                formData.append('bio', this.form.bio)
+                formData.append('age', this.form.age)
+                formData.append('locations', this.form.locations)
 
                 axios
                     .post('/api/editprofile/', formData, {
@@ -125,6 +184,9 @@ export default {
                                 name: this.form.name,
                                 email: this.form.email,
                                 gender: this.form.gender,
+                                locations: this.form.locations,
+                                bio: this.form.bio,
+                                age: this.form.age,
                                 avatar: response.data.user.get_avatar
                             })
                             this.$router.back()

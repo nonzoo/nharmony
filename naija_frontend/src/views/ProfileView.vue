@@ -2,12 +2,20 @@
     <div class="max-w-7xl mx-auto grid grid-cols-4 gap-4">
         <div class="main-left col-span-1">
             <div class="p-4 bg-white border border-gray-200 text-center rounded-lg">
-                <img :src="user.get_avatar" class="mb-6 rounded-full" style="max-width: 200px;  max-height: 150px; width: auto;  height: auto;">
+                <img :src="user.get_avatar" class=" mb-6 rounded-full" >
 
                 <p><strong>{{ user.name }}</strong></p>
                 <p><small>@{{ user.name }}</small></p>
+                <p>{{ user.age }}</p>
+                
                 <p class="capitalize-first"><strong>{{ user.gender }}</strong></p>
 
+                <div>
+                    {{ user.bio }}
+                </div>
+
+                <p>{{ user.locations }}</p>
+                
                 <div class="mt-6 flex space-x-8 justify-around" v-if="user.id">
                     <RouterLink :to="{ name: 'friends', params: { id: user.id } }" class="text-xs text-gray-500">
                         {{ user.friends_count }} friends</RouterLink>

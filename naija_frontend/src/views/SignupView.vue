@@ -29,7 +29,11 @@
                         <input type="email" v-model="form.email" placeholder="Your e-mail address"
                             class="w-full mt-2 py-4 px-6 border border-gray-200 rounded-lg">
                     </div>
-
+                    <div>
+                        <label>Age</label><br>
+                        <input type="number" v-model="form.age"
+                            class="w-full mt-2 py-4 px-6 border border-gray-200 rounded-lg">
+                    </div>
                     <div>
                         <label>Password</label><br>
                         <input type="password" v-model="form.password1" placeholder="Your password"
@@ -75,6 +79,7 @@ export default {
             form: {
                 email: '',
                 name: '',
+                age:'',
                 password1: '',
                 password2: ''
             },
@@ -92,6 +97,9 @@ export default {
 
             if (this.form.name === '') {
                 this.errors.push('Your name is missing')
+            }
+            if (this.form.age === '') {
+                this.errors.push('Your age is missing')
             }
 
             if (this.form.password1 === '') {

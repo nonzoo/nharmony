@@ -2,6 +2,7 @@
     <div class="max-w-7xl mx-auto grid grid-cols-4 gap-4">
         <div class="main-center col-span-3 space-y-4">
             <div class="bg-white border border-gray-200 rounded-lg">
+                <!-- Search form -->
                 <form v-on:submit.prevent="submitForm" class="p-4 flex space-x-4">
                     <input v-model="query" type="search" class="p-4 w-full bg-gray-100 rounded-lg"
                         placeholder="What are you looking for?">
@@ -19,18 +20,20 @@
             <!-- For Profiles -->
             <div class="p-4 bg-white border border-gray-200 rounded-lg grid grid-cols-4 gap-4" v-if="users.length">
                 <div v-for="user in users" v-bind:key="user.id" class="p-4 text-center bg-gray-100 rounded-lg">
-                    <img :src="user.get_avatar" class="mb-6 rounded-full">
+                    <RouterLink :to="{ name: 'profile', params: { 'id': user.id } }">
+                        <img :src="user.get_avatar" class="mb-6 rounded-full">
 
-                    <p>
-                        <strong>
-                            <RouterLink :to="{ name: 'profile', params: { 'id': user.id } }">{{ user.name }}</RouterLink>
-                        </strong>
-                    </p>
+                        <p>
+                            <strong>
+                                {{ user.name }}
+                            </strong>
+                        </p>
 
-                    <div class="mt-6 flex space-x-8 justify-around">
-                        <p class="text-xs text-gray-500">{{ user.friends_count }} friends</p>
-                        <p class="text-xs text-gray-500">{{ user.posts_count }} posts</p>
-                    </div>
+                        <div class="mt-6 flex space-x-8 justify-around">
+                            <p class="text-xs text-gray-500">{{ user.friends_count }} friends</p>
+                            <p class="text-xs text-gray-500">{{ user.posts_count }} posts</p>
+                        </div>
+                    </RouterLink>
                 </div>
             </div>
 
@@ -39,6 +42,12 @@
 
                 <FeedItem v-bind:post="post" />
 
+            </div>
+
+            <!-- For locations -->
+            <div class="p-4 bg-white border border-gray-200 rounded-lg" v-for="location in locations"
+                v-bind:key="location.id">
+                {{ location.body }}
             </div>
         </div>
 
@@ -77,6 +86,7 @@ export default {
             query: '',
             users: [],
             posts: [],
+            locations: []
         }
     },
     methods: {
@@ -91,6 +101,7 @@ export default {
                     console.log('response:', response.data)
                     this.users = response.data.users
                     this.posts = response.data.posts
+                    this.locations = response.data.locations
                 })
                 .catch(error => {
                     console.log('error:', error)
